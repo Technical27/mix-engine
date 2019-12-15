@@ -3,7 +3,7 @@ project(mix-engine)
 
 set (CMAKE_CXX_STANDARD 17)
 
-set (COMMON_FLAGS "-std=c++17 -Wall -Wextra -pedantic -msse2 -mavx -I${CMAKE_SOURCE_DIR}/include")
+set (COMMON_FLAGS "-std=c++17 -Wall -Wextra -pedantic -msse2 -mavx -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/stb")
 
 set (CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS} -Og -g3")
 set (CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS} -O3 -s -DNDEBUG")
@@ -22,6 +22,7 @@ add_executable(main
   src/engine/vulkan/pipeline.cpp
   src/engine/vulkan/frame.cpp
   src/engine/vulkan/buffer.cpp
+  src/engine/vulkan/image.cpp
 
   src/engine/utils/file.cpp
 )

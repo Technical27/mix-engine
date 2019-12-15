@@ -11,6 +11,7 @@ void VulkanRenderer::init() {
   createSurface();
   pickPhysicalDevice();
   createLogicalDevice();
+
   createSwapchain();
   createImageViews();
   createRenderPass();
@@ -18,11 +19,18 @@ void VulkanRenderer::init() {
   createGraphicsPipeline();
   createFramebuffers();
   createCommandPool();
+
+  createTextureImage();
+  createTextureImageView();
+  createTextureSampler();
+
   createVertexBuffer();
   createIndexBuffer();
   createUniformBuffers();
+
   createDescriptorPool();
   createDescriptorSets();
+
   createCommandBuffers();
   createSyncObjects();
 }
@@ -43,6 +51,12 @@ void VulkanRenderer::cleanup() {
   vkDeviceWaitIdle(device);
 
   cleanupSwapchain();
+
+  vkDestroySampler(device, textureSampler, nullptr);
+  vkDestroyImageView(device, textureImageView, nullptr);
+
+  vkDestroyImage(device, textureImage, nullptr);
+  vkFreeMemory(device, textureImageMemory, nullptr);
 
   vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 

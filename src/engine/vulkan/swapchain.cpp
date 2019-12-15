@@ -28,7 +28,7 @@ SwapchainSupportDetails VulkanRenderer::querySwapchainSupport(VkPhysicalDevice d
 
 VkSurfaceFormatKHR VulkanRenderer::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
   for (const auto& availableFormat : availableFormats) {
-      if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+      if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
           return availableFormat;
       }
   }
@@ -164,26 +164,6 @@ void VulkanRenderer::createImageViews() {
   swapchainImageViews.resize(swapchainImages.size());
 
   for (size_t i = 0; i < swapchainImages.size(); i++) {
-    VkImageViewCreateInfo imageInfo = {};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-
-    imageInfo.image = swapchainImages[i];
-    imageInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    imageInfo.format = swapchainImageFormat;
-
-    imageInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    imageInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    imageInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    imageInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-    imageInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    imageInfo.subresourceRange.baseMipLevel = 0;
-    imageInfo.subresourceRange.levelCount = 1;
-    imageInfo.subresourceRange.baseArrayLayer = 0;
-    imageInfo.subresourceRange.layerCount = 1;
-
-    if (vkCreateImageView(device, &imageInfo, nullptr, &swapchainImageViews[i]) != VK_SUCCESS) {
-      throw EngineException("failed to create image views!", file);
-    }
+    swapchainImageViews[i] = createImageView(swapchainImages[i], VK_FORMAT_B8G8R8A8_SRGB);
   }
 }

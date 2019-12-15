@@ -59,7 +59,10 @@ bool VulkanRenderer::deviceIsSuitable(VkPhysicalDevice device) {
     swapchainAdequate = !swapchainSupport.formats.empty() && !swapchainSupport.presentModes.empty();
   }
 
-  return indices.isComplete() && extensionsSupported && swapchainAdequate;
+  VkPhysicalDeviceFeatures supportedFeatures;
+  vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+  return indices.isComplete() && extensionsSupported && swapchainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
 void VulkanRenderer::pickPhysicalDevice() {
@@ -108,6 +111,7 @@ void VulkanRenderer::createLogicalDevice() {
   }
 
   VkPhysicalDeviceFeatures deviceFeatures = {};
+  deviceFeatures.samplerAnisotropy = VK_TRUE;
 
   VkDeviceCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
