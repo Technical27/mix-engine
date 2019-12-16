@@ -25,7 +25,6 @@ void VulkanRenderer::createFramebuffers () {
 }
 
 void VulkanRenderer::drawFrame () {
-  std::cout << "render call" << std::endl;
   vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
   uint32_t imageIndex;
@@ -102,11 +101,6 @@ void VulkanRenderer::drawFrame () {
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
-  static auto startTime = std::chrono::high_resolution_clock::now();
-
-  auto currentTime = std::chrono::high_resolution_clock::now();
-  float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
   UniformBufferObject ubo = {};
   ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
   ubo.view = glm::lookAt(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -115,7 +109,7 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
   ubo.proj[1][1] *= -1;
 
   void* data;
-  vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+  vkMapMemory(device, cube.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
       memcpy(data, &ubo, sizeof(ubo));
-  vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
+  vkUnmapMemory(device, cube.uniformBuffersMemory[currentImage]);
 }

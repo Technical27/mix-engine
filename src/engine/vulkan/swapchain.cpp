@@ -98,8 +98,8 @@ void VulkanRenderer::cleanupSwapchain() {
   vkDestroySwapchainKHR(device, swapchain, nullptr);
 
   for (size_t i = 0; i < swapchainImages.size(); i++) {
-    vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-    vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+    vkDestroyBuffer(device, cube.uniformBuffers[i], nullptr);
+    vkFreeMemory(device, cube.uniformBuffersMemory[i], nullptr);
   }
 
   vkDestroyDescriptorPool(device, descriptorPool, nullptr);

@@ -3,6 +3,7 @@
 #define file "src/engine/vulkan/init.cpp"
 
 void VulkanRenderer::init() {
+  createCube(cube);
   SDLinit();
   createInstance();
 #ifdef USE_VALIDATION_LAYERS
@@ -52,19 +53,11 @@ void VulkanRenderer::cleanup() {
 
   cleanupSwapchain();
 
-  vkDestroySampler(device, textureSampler, nullptr);
-  vkDestroyImageView(device, textureImageView, nullptr);
+  cube.destroy(device);
 
-  vkDestroyImage(device, textureImage, nullptr);
-  vkFreeMemory(device, textureImageMemory, nullptr);
+  vkDestroySampler(device, textureSampler, nullptr);
 
   vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
-  vkDestroyBuffer(device, indexBuffer, nullptr);
-  vkFreeMemory(device, indexBufferMemory, nullptr);
-
-  vkDestroyBuffer(device, vertexBuffer, nullptr);
-  vkFreeMemory(device, vertexBufferMemory, nullptr);
 
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);

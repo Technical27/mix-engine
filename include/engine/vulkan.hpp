@@ -68,6 +68,35 @@ struct Vertex {
   }
 };
 
+struct Object {
+  std::vector<VkBuffer> uniformBuffers;
+  std::vector<VkDeviceMemory> uniformBuffersMemory;
+  Vertex vertex;
+  VkBuffer vertexBuffer;
+  VkBuffer indexBuffer;
+  VkDeviceMemory vertexBufferMemory;
+  VkDeviceMemory indexBufferMemory;
+  std::vector<Vertex> vertices;
+  std::vector<uint16_t> indices;
+  VkImage textureImage;
+  VkImageView textureImageView;
+  VkDeviceMemory textureImageMemory;
+  std::vector<VkDescriptorSet> descriptorSets;
+
+  void destroy (VkDevice device) {
+    vkDestroyImageView(device, textureImageView, nullptr);
+
+    vkDestroyImage(device, textureImage, nullptr);
+    vkFreeMemory(device, textureImageMemory, nullptr);
+
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
+
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
+  }
+};
+
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;
   std::optional<uint32_t> presentFamily;
@@ -86,6 +115,8 @@ class VulkanRenderer : public Renderer {
   private:
     VkInstance instance;
     SDL_Window *win;
+
+    Object cube = {};
 
     VkPhysicalDevice physicalDevice;
     VkDevice device;
@@ -114,16 +145,7 @@ class VulkanRenderer : public Renderer {
     std::vector<VkFence> imagesInFlight;
     int currentFrame = 0;
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
-
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
-
     VkDescriptorPool descriptorPool;
-    std::vector<VkDescriptorSet> descriptorSets;
 
     const uint32_t HEIGHT = 720;
     const uint32_t WIDTH = 1280;
@@ -145,16 +167,17 @@ class VulkanRenderer : public Renderer {
       VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    const std::vector<Vertex> vertices = {
-      {{-0.5f, -0.3f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-      {{0.5f, -0.3f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-      {{0.5f, 0.3f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-      {{-0.5f, 0.3f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-    };
-
-    const std::vector<uint16_t> indices = {
-      0, 1, 2, 2, 3, 0
-    };
+    void createCube (Object &c) {
+      c.vertices = {
+        {{-0.5f, -0.3f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+        {{0.5f, -0.3f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.5f, 0.3f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{-0.5f, 0.3f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+      };
+      c.indices = {
+        0, 1, 2, 2, 3, 0
+      };
+    }
 
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -208,15 +231,12 @@ class VulkanRenderer : public Renderer {
       VkDeviceMemory& imageMemory
     );
     VkImageView createImageView(VkImage image, VkFormat format);
-    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
     void createTextureImage();
     void createTextureImageView();
     void createTextureSampler();
-    VkImage textureImage;
-    VkImageView textureImageView;
     VkSampler textureSampler;
-    VkDeviceMemory textureImageMemory;
 
     SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
