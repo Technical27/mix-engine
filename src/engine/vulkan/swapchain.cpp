@@ -75,14 +75,16 @@ void VulkanRenderer::recreateSwapchain() {
   createRenderPass();
   createGraphicsPipeline();
   createFramebuffers();
-  createUniformBuffers();
-  createDescriptorPool();
-  createDescriptorSets();
+  createDescriptorPool(static_cast<int>(objects.size()));
+  for (auto &obj : objects) {
+    createUniformBuffers(obj);
+    createDescriptorSets(obj);
+  }
   createCommandBuffers();
 }
 
 void VulkanRenderer::cleanupSwapchain() {
-  for (auto framebuffer : swapchainFramebuffers) {
+  for (auto &framebuffer : swapchainFramebuffers) {
     vkDestroyFramebuffer(device, framebuffer, nullptr);
   }
 
@@ -97,9 +99,8 @@ void VulkanRenderer::cleanupSwapchain() {
   }
   vkDestroySwapchainKHR(device, swapchain, nullptr);
 
-  for (size_t i = 0; i < swapchainImages.size(); i++) {
-    vkDestroyBuffer(device, cube.uniformBuffers[i], nullptr);
-    vkFreeMemory(device, cube.uniformBuffersMemory[i], nullptr);
+  for (auto &obj : objects) {
+    obj.freeBuffers(device);
   }
 
   vkDestroyDescriptorPool(device, descriptorPool, nullptr);

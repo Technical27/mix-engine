@@ -54,8 +54,8 @@ void VulkanRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
   endSingleTimeCommands(commandBuffer);
 }
 
-void VulkanRenderer::createVertexBuffer() {
-  VkDeviceSize bufferSize = sizeof(cube.vertices[0]) * cube.vertices.size();
+void VulkanRenderer::createVertexBuffer(Object& obj) {
+  VkDeviceSize bufferSize = sizeof(obj.vertices[0]) * obj.vertices.size();
 
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -68,24 +68,24 @@ void VulkanRenderer::createVertexBuffer() {
 
   void* data;
   vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-      memcpy(data, cube.vertices.data(), (size_t) bufferSize);
+      memcpy(data, obj.vertices.data(), (size_t) bufferSize);
   vkUnmapMemory(device, stagingBufferMemory);
 
   createBuffer(
     bufferSize,
     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-    cube.vertexBuffer,
-    cube.vertexBufferMemory);
+    obj.vertexBuffer,
+    obj.vertexBufferMemory);
 
-  copyBuffer(stagingBuffer, cube.vertexBuffer, bufferSize);
+  copyBuffer(stagingBuffer, obj.vertexBuffer, bufferSize);
 
   vkDestroyBuffer(device, stagingBuffer, nullptr);
   vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void VulkanRenderer::createIndexBuffer () {
-  VkDeviceSize bufferSize = sizeof(cube.indices[0]) * cube.indices.size();
+void VulkanRenderer::createIndexBuffer (Object& obj) {
+  VkDeviceSize bufferSize = sizeof(obj.indices[0]) * obj.indices.size();
 
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -99,17 +99,17 @@ void VulkanRenderer::createIndexBuffer () {
 
   void* data;
   vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, cube.indices.data(), (size_t) bufferSize);
+  memcpy(data, obj.indices.data(), (size_t) bufferSize);
   vkUnmapMemory(device, stagingBufferMemory);
 
   createBuffer(
     bufferSize,
     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-    cube.indexBuffer,
-    cube.indexBufferMemory
+    obj.indexBuffer,
+    obj.indexBufferMemory
   );
 
-  copyBuffer(stagingBuffer, cube.indexBuffer, bufferSize);
+  copyBuffer(stagingBuffer, obj.indexBuffer, bufferSize);
 
   vkDestroyBuffer(device, stagingBuffer, nullptr);
   vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -141,25 +141,25 @@ void VulkanRenderer::createDescriptorSetLayout() {
   }
 }
 
-void VulkanRenderer::createDescriptorPool() {
+void VulkanRenderer::createDescriptorPool(int size) {
   std::array<VkDescriptorPoolSize, 2> poolSizes = {};
   poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  poolSizes[0].descriptorCount = static_cast<uint32_t>(swapchainImages.size());
+  poolSizes[0].descriptorCount = static_cast<uint32_t>(swapchainImages.size() * size);
   poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  poolSizes[1].descriptorCount = static_cast<uint32_t>(swapchainImages.size());
+  poolSizes[1].descriptorCount = static_cast<uint32_t>(swapchainImages.size() * size);
 
   VkDescriptorPoolCreateInfo poolInfo = {};
   poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
   poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
   poolInfo.pPoolSizes = poolSizes.data();
-  poolInfo.maxSets = static_cast<uint32_t>(swapchainImages.size());
+  poolInfo.maxSets = static_cast<uint32_t>(swapchainImages.size() * size);
 
   if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
     throw EngineException("failed to create descriptor pool", file);
   }
 }
 
-void VulkanRenderer::createDescriptorSets() {
+void VulkanRenderer::createDescriptorSets(Object& obj) {
   std::vector<VkDescriptorSetLayout> layouts(swapchainImages.size(), descriptorSetLayout);
   VkDescriptorSetAllocateInfo allocInfo = {};
   allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -167,26 +167,26 @@ void VulkanRenderer::createDescriptorSets() {
   allocInfo.descriptorSetCount = static_cast<uint32_t>(swapchainImages.size());
   allocInfo.pSetLayouts = layouts.data();
 
-  cube.descriptorSets.resize(swapchainImages.size());
-  if (vkAllocateDescriptorSets(device, &allocInfo, cube.descriptorSets.data()) != VK_SUCCESS) {
+  obj.descriptorSets.resize(swapchainImages.size());
+  if (vkAllocateDescriptorSets(device, &allocInfo, obj.descriptorSets.data()) != VK_SUCCESS) {
     throw EngineException("failed to allocate descriptor sets", file);
   }
 
-  for (size_t i = 0; i < swapchainImages.size(); i++) {
+  for (size_t i = 0; i < obj.descriptorSets.size(); i++) {
     VkDescriptorBufferInfo bufferInfo = {};
-    bufferInfo.buffer = cube.uniformBuffers[i];
+    bufferInfo.buffer = obj.uniformBuffers[i];
     bufferInfo.offset = 0;
     bufferInfo.range = sizeof(UniformBufferObject);
 
     VkDescriptorImageInfo imageInfo = {};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = cube.textureImageView;
+    imageInfo.imageView = obj.textureImageView;
     imageInfo.sampler = textureSampler;
 
     std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 
     descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[0].dstSet = cube.descriptorSets[i];
+    descriptorWrites[0].dstSet = obj.descriptorSets[i];
     descriptorWrites[0].dstBinding = 0;
     descriptorWrites[0].dstArrayElement = 0;
     descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -194,7 +194,7 @@ void VulkanRenderer::createDescriptorSets() {
     descriptorWrites[0].pBufferInfo = &bufferInfo;
 
     descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites[1].dstSet = cube.descriptorSets[i];
+    descriptorWrites[1].dstSet = obj.descriptorSets[i];
     descriptorWrites[1].dstBinding = 1;
     descriptorWrites[1].dstArrayElement = 0;
     descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -205,19 +205,19 @@ void VulkanRenderer::createDescriptorSets() {
   }
 }
 
-void VulkanRenderer::createUniformBuffers() {
+void VulkanRenderer::createUniformBuffers(Object& obj) {
   VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-  cube.uniformBuffers.resize(swapchainImages.size());
-  cube.uniformBuffersMemory.resize(swapchainImages.size());
+  obj.uniformBuffers.resize(swapchainImages.size());
+  obj.uniformBuffersMemory.resize(swapchainImages.size());
 
   for (size_t i = 0; i < swapchainImages.size(); i++) {
       createBuffer(
         bufferSize,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        cube.uniformBuffers[i],
-        cube.uniformBuffersMemory[i]);
+        obj.uniformBuffers[i],
+        obj.uniformBuffersMemory[i]);
   }
 }
 

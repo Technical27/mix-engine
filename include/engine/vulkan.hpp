@@ -46,7 +46,7 @@ struct Vertex {
   }
 
   static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-    
+
     std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 
     attributeDescriptions[0].binding = 0;
@@ -71,7 +71,6 @@ struct Vertex {
 struct Object {
   std::vector<VkBuffer> uniformBuffers;
   std::vector<VkDeviceMemory> uniformBuffersMemory;
-  Vertex vertex;
   VkBuffer vertexBuffer;
   VkBuffer indexBuffer;
   VkDeviceMemory vertexBufferMemory;
@@ -95,6 +94,13 @@ struct Object {
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
   }
+
+  void freeBuffers(VkDevice device) {
+    for (size_t i = 0; i < uniformBuffers.size(); i++) {
+      vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+      vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+    }
+  }
 };
 
 struct QueueFamilyIndices {
@@ -115,8 +121,6 @@ class VulkanRenderer : public Renderer {
   private:
     VkInstance instance;
     SDL_Window *win;
-
-    Object cube = {};
 
     VkPhysicalDevice physicalDevice;
     VkDevice device;
@@ -194,14 +198,17 @@ class VulkanRenderer : public Renderer {
     void createCommandPool();
     void createCommandBuffers();
     void createSyncObjects();
-    void createVertexBuffer();
-    void createIndexBuffer();
-    void createDescriptorSetLayout();
 
-    void createUniformBuffers();
+    void createVertexBuffer(Object& obj);
+    void createIndexBuffer(Object& obj);
+    void createUniformBuffers(Object& obj);
+    void createDescriptorSets(Object& obj);
+    void createTextureImage(Object& obj, std::string fileName);
+    void createTextureImageView(Object& obj);
+
     void updateUniformBuffer(uint32_t currentImage);
-    void createDescriptorPool();
-    void createDescriptorSets();
+    void createDescriptorSetLayout();
+    void createDescriptorPool(int size);
 
     void createBuffer(
       VkDeviceSize size,
@@ -233,8 +240,6 @@ class VulkanRenderer : public Renderer {
     VkImageView createImageView(VkImage image, VkFormat format);
     void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-    void createTextureImage();
-    void createTextureImageView();
     void createTextureSampler();
     VkSampler textureSampler;
 
@@ -244,7 +249,23 @@ class VulkanRenderer : public Renderer {
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void recreateSwapchain();
     void cleanupSwapchain();
+
+    std::vector<Object> objects;
   public:
+    Object createObject() {
+      Object obj;
+      createCube(obj);
+      createVertexBuffer(obj);
+      createIndexBuffer(obj);
+      createUniformBuffers(obj);
+      createTextureImage(obj, "../assets/patch.png");
+      createTextureImageView(obj);
+      createDescriptorSets(obj);
+      return obj;
+    }
+    void pushObject(Object &obj) {
+      objects.push_back(obj);
+    }
     void cleanup();
     void init();
     void drawFrame();

@@ -101,15 +101,19 @@ void VulkanRenderer::drawFrame () {
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
-  UniformBufferObject ubo = {};
-  ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-  ubo.view = glm::lookAt(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-  ubo.proj = glm::perspective(glm::radians(45.0f), swapchainExtent.width / (float) swapchainExtent.height, 0.1f, 10.0f);
+  double offset = 0.0f;
+  for (auto &obj : objects) {
+    UniformBufferObject ubo = {};
+    ubo.model = glm::translate(glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(0.5f * offset, 0.5f * offset, 0.0f));
+    ubo.view = glm::lookAt(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), swapchainExtent.width / (float) swapchainExtent.height, 0.1f, 10.0f);
 
-  ubo.proj[1][1] *= -1;
+    ubo.proj[1][1] *= -1;
 
-  void* data;
-  vkMapMemory(device, cube.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+    void* data;
+    vkMapMemory(device, obj.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
       memcpy(data, &ubo, sizeof(ubo));
-  vkUnmapMemory(device, cube.uniformBuffersMemory[currentImage]);
+    vkUnmapMemory(device, obj.uniformBuffersMemory[currentImage]);
+    offset++;
+  }
 }

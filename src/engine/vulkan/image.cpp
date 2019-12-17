@@ -39,9 +39,9 @@ void VulkanRenderer::createImage(uint32_t width, uint32_t height, VkFormat forma
   vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-void VulkanRenderer::createTextureImage() {
+void VulkanRenderer::createTextureImage(Object& obj, std::string fileName) {
   int textureWidth, textureHeight, textureChannels;
-  stbi_uc* pixels = stbi_load("../assets/patch.png", &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
+  stbi_uc* pixels = stbi_load(fileName.c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
   VkDeviceSize imageSize = textureWidth * textureHeight * 4;
 
   if (!pixels) {
@@ -72,14 +72,14 @@ void VulkanRenderer::createTextureImage() {
     VK_IMAGE_TILING_OPTIMAL,
     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-    cube.textureImage,
-    cube.textureImageMemory
+    obj.textureImage,
+    obj.textureImageMemory
   );
 
-  transitionImageLayout(cube.textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-  copyBufferToImage(stagingBuffer, cube.textureImage, static_cast<uint32_t>(textureWidth), static_cast<uint32_t>(textureHeight));
+  transitionImageLayout(obj.textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+  copyBufferToImage(stagingBuffer, obj.textureImage, static_cast<uint32_t>(textureWidth), static_cast<uint32_t>(textureHeight));
 
-  transitionImageLayout(cube.textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+  transitionImageLayout(obj.textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
   vkDestroyBuffer(device, stagingBuffer, nullptr);
   vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -189,8 +189,8 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format) {
   return imageView;
 }
 
-void VulkanRenderer::createTextureImageView() {
-  cube.textureImageView = createImageView(cube.textureImage, VK_FORMAT_R8G8B8A8_SRGB); 
+void VulkanRenderer::createTextureImageView(Object& obj) {
+  obj.textureImageView = createImageView(obj.textureImage, VK_FORMAT_R8G8B8A8_SRGB); 
 }
 
 void VulkanRenderer::createTextureSampler() {

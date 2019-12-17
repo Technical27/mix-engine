@@ -3,7 +3,6 @@
 #define file "src/engine/vulkan/init.cpp"
 
 void VulkanRenderer::init() {
-  createCube(cube);
   SDLinit();
   createInstance();
 #ifdef USE_VALIDATION_LAYERS
@@ -21,16 +20,13 @@ void VulkanRenderer::init() {
   createFramebuffers();
   createCommandPool();
 
-  createTextureImage();
-  createTextureImageView();
   createTextureSampler();
 
-  createVertexBuffer();
-  createIndexBuffer();
-  createUniformBuffers();
-
-  createDescriptorPool();
-  createDescriptorSets();
+  createDescriptorPool(2);
+  Object cube = createObject();
+  Object cube2 = createObject();
+  pushObject(cube);
+  pushObject(cube2);
 
   createCommandBuffers();
   createSyncObjects();
@@ -53,7 +49,9 @@ void VulkanRenderer::cleanup() {
 
   cleanupSwapchain();
 
-  cube.destroy(device);
+  for (auto &obj : objects) {
+    obj.destroy(device);
+  }
 
   vkDestroySampler(device, textureSampler, nullptr);
 

@@ -64,16 +64,17 @@ void VulkanRenderer::createCommandBuffers() {
     vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    for (auto &obj : objects) {
+      VkBuffer vertexBuffers[] = {obj.vertexBuffer};
+      VkDeviceSize offsets[] = {0};
+      vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-    VkBuffer vertexBuffers[] = {cube.vertexBuffer};
-    VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+      vkCmdBindIndexBuffer(commandBuffers[i], obj.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-    vkCmdBindIndexBuffer(commandBuffers[i], cube.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+      vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &obj.descriptorSets[i], 0, nullptr);
 
-    vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &cube.descriptorSets[i], 0, nullptr);
-
-    vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(cube.indices.size()), 1, 0, 0, 0);
+      vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(obj.indices.size()), 1, 0, 0, 0);
+    }
 
     vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -240,7 +241,7 @@ void VulkanRenderer::createGraphicsPipeline () {
 
  if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
     throw EngineException("failed to create graphics pipeline!", file);
-  } 
+  }
 
   vkDestroyShaderModule(device, fragShaderModule, nullptr);
   vkDestroyShaderModule(device, vertShaderModule, nullptr);
