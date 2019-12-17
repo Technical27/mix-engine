@@ -81,6 +81,7 @@ struct Object {
   VkImageView textureImageView;
   VkDeviceMemory textureImageMemory;
   std::vector<VkDescriptorSet> descriptorSets;
+  UniformBufferObject ubo;
 
   void destroy (VkDevice device) {
     vkDestroyImageView(device, textureImageView, nullptr);
@@ -101,6 +102,19 @@ struct Object {
       vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
     }
   }
+
+  void updateUBO(VkExtent2D extent) {
+    ubo.model = ubo.view = ubo.proj = glm::mat4(1.0f);
+    ubo.model = glm::rotate(ubo.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    ubo.view = glm::lookAt(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f), extent.width / (float) extent.height, 0.1f, 10.0f);
+    ubo.proj[1][1] *= -1;
+  }
+};
+
+struct VulkanPipeline {
+  VkPipeline pipeline;
+  std::vector<Object> objects;
 };
 
 struct QueueFamilyIndices {
@@ -131,7 +145,6 @@ class VulkanRenderer : public Renderer {
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
     VkFormat swapchainImageFormat;
-    VkExtent2D swapchainExtent;
     std::vector<VkImageView> swapchainImageViews;
 
     VkDescriptorSetLayout descriptorSetLayout;
@@ -223,7 +236,7 @@ class VulkanRenderer : public Renderer {
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createGraphicsPipeline();
+    void createGraphicsPipeline(std::string vertShaderPath, std::string fragShaderPath);
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -252,6 +265,7 @@ class VulkanRenderer : public Renderer {
 
     std::vector<Object> objects;
   public:
+    VkExtent2D swapchainExtent;
     Object createObject() {
       Object obj;
       createCube(obj);

@@ -16,17 +16,24 @@ void VulkanRenderer::init() {
   createImageViews();
   createRenderPass();
   createDescriptorSetLayout();
-  createGraphicsPipeline();
+  createGraphicsPipeline("shaders/vert.spv", "shaders/frag.spv");
   createFramebuffers();
   createCommandPool();
 
   createTextureSampler();
 
-  createDescriptorPool(2);
+  createDescriptorPool(3);
   Object cube = createObject();
   Object cube2 = createObject();
+  Object cube3 = createObject();
+  cube.updateUBO(swapchainExtent);
+  cube2.updateUBO(swapchainExtent);
+  cube3.updateUBO(swapchainExtent);
+  cube2.ubo.model = glm::translate(cube2.ubo.model, glm::vec3(1.5f, 0.0f, 0.0f));
+  cube3.ubo.model = glm::translate(cube3.ubo.model, glm::vec3(-1.5f, 0.0f, 0.0f));
   pushObject(cube);
   pushObject(cube2);
+  pushObject(cube3);
 
   createCommandBuffers();
   createSyncObjects();

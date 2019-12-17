@@ -73,12 +73,16 @@ void VulkanRenderer::recreateSwapchain() {
   createSwapchain();
   createImageViews();
   createRenderPass();
-  createGraphicsPipeline();
+  createGraphicsPipeline("shaders/vert.spv", "shaders/frag.spv");
   createFramebuffers();
   createDescriptorPool(static_cast<int>(objects.size()));
+  double offset = static_cast<int>(objects.size()) / -2;
   for (auto &obj : objects) {
     createUniformBuffers(obj);
     createDescriptorSets(obj);
+    obj.updateUBO(swapchainExtent);
+    obj.ubo.model = glm::translate(obj.ubo.model, glm::vec3(1.5f * offset, 0.0f, 0.0f));
+    offset++;
   }
   createCommandBuffers();
 }
