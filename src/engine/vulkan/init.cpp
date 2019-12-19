@@ -16,24 +16,29 @@ void VulkanRenderer::init() {
   createImageViews();
   createRenderPass();
   createDescriptorSetLayout();
-  createGraphicsPipeline("shaders/vert.spv", "shaders/frag.spv");
+  Pipeline pipeline;
+  pipeline.vertShaderPath = "shaders/vert.spv";
+  pipeline.fragShaderPath = "shaders/frag.spv";
+  createGraphicsPipeline(pipeline);
   createFramebuffers();
   createCommandPool();
 
   createTextureSampler();
 
   createDescriptorPool(3);
-  Object cube = createObject();
-  Object cube2 = createObject();
-  Object cube3 = createObject();
+  
+  Object cube = createObject("../assets/patch.png");
+  Object cube2 = createObject("../assets/patch.png");
+  Object cube3 = createObject("../assets/patch.png");
   cube.updateUBO(swapchainExtent);
   cube2.updateUBO(swapchainExtent);
   cube3.updateUBO(swapchainExtent);
   cube2.ubo.model = glm::translate(cube2.ubo.model, glm::vec3(1.5f, 0.0f, 0.0f));
   cube3.ubo.model = glm::translate(cube3.ubo.model, glm::vec3(-1.5f, 0.0f, 0.0f));
-  pushObject(cube);
-  pushObject(cube2);
-  pushObject(cube3);
+  pipeline.objects.push_back(cube);
+  pipeline.objects.push_back(cube2);
+  pipeline.objects.push_back(cube3);
+  pipelines.push_back(pipeline);
 
   createCommandBuffers();
   createSyncObjects();
@@ -56,8 +61,10 @@ void VulkanRenderer::cleanup() {
 
   cleanupSwapchain();
 
-  for (auto &obj : objects) {
-    obj.destroy(device);
+  for (auto &pipeline : pipelines) {
+    for (auto &obj : pipeline.objects) {
+      obj.destroy(device);
+    }
   }
 
   vkDestroySampler(device, textureSampler, nullptr);

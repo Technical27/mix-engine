@@ -112,8 +112,11 @@ struct Object {
   }
 };
 
-struct VulkanPipeline {
+struct Pipeline {
   VkPipeline pipeline;
+  VkPipelineLayout layout;
+  std::string vertShaderPath;
+  std::string fragShaderPath;
   std::vector<Object> objects;
 };
 
@@ -142,14 +145,14 @@ class VulkanRenderer : public Renderer {
     VkQueue presentQueue;
     VkSurfaceKHR surface;
 
+    std::vector<Pipeline> pipelines;
+
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
     VkFormat swapchainImageFormat;
     std::vector<VkImageView> swapchainImageViews;
 
     VkDescriptorSetLayout descriptorSetLayout;
-    VkPipelineLayout pipelineLayout;
-    VkPipeline graphicsPipeline;
     VkRenderPass renderPass;
     std::vector<VkFramebuffer> swapchainFramebuffers;
 
@@ -236,7 +239,7 @@ class VulkanRenderer : public Renderer {
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createGraphicsPipeline(std::string vertShaderPath, std::string fragShaderPath);
+    void createGraphicsPipeline(Pipeline &pipeline);
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -262,23 +265,18 @@ class VulkanRenderer : public Renderer {
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void recreateSwapchain();
     void cleanupSwapchain();
-
-    std::vector<Object> objects;
   public:
     VkExtent2D swapchainExtent;
-    Object createObject() {
+    Object createObject(std::string texturePath) {
       Object obj;
       createCube(obj);
       createVertexBuffer(obj);
       createIndexBuffer(obj);
       createUniformBuffers(obj);
-      createTextureImage(obj, "../assets/patch.png");
+      createTextureImage(obj, texturePath);
       createTextureImageView(obj);
       createDescriptorSets(obj);
       return obj;
-    }
-    void pushObject(Object &obj) {
-      objects.push_back(obj);
     }
     void cleanup();
     void init();

@@ -62,18 +62,20 @@ void VulkanRenderer::createCommandBuffers() {
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    
+    for (auto &pipeline : pipelines) {
+    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
+      for (auto &obj : pipeline.objects) {
+        VkBuffer vertexBuffers[] = {obj.vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-    for (auto &obj : objects) {
-      VkBuffer vertexBuffers[] = {obj.vertexBuffer};
-      VkDeviceSize offsets[] = {0};
-      vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffers[i], obj.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-      vkCmdBindIndexBuffer(commandBuffers[i], obj.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, 1, &obj.descriptorSets[i], 0, nullptr);
 
-      vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &obj.descriptorSets[i], 0, nullptr);
-
-      vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(obj.indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(obj.indices.size()), 1, 0, 0, 0);
+      }
     }
 
     vkCmdEndRenderPass(commandBuffers[i]);
@@ -131,9 +133,9 @@ void VulkanRenderer::createRenderPass() {
   }
 }
 
-void VulkanRenderer::createGraphicsPipeline (std::string vertShaderPath, std::string fragShaderPath) {
-  auto vertCode = readFile(vertShaderPath);
-  auto fragCode = readFile(fragShaderPath);
+void VulkanRenderer::createGraphicsPipeline (Pipeline &pipeline) {
+  auto vertCode = readFile(pipeline.vertShaderPath);
+  auto fragCode = readFile(pipeline.fragShaderPath);
 
   VkShaderModule vertShaderModule = createShaderModule(vertCode);
   VkShaderModule fragShaderModule = createShaderModule(fragCode);
@@ -220,7 +222,7 @@ void VulkanRenderer::createGraphicsPipeline (std::string vertShaderPath, std::st
   pipelineLayoutInfo.setLayoutCount = 1;
   pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
   pipelineLayoutInfo.pushConstantRangeCount = 0;
-  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipeline.layout) != VK_SUCCESS) {
     throw EngineException("failed to create pipeline layout!", file);
   }
 
@@ -234,12 +236,12 @@ void VulkanRenderer::createGraphicsPipeline (std::string vertShaderPath, std::st
   pipelineInfo.pRasterizationState = &rasterizer;
   pipelineInfo.pMultisampleState = &multisampling;
   pipelineInfo.pColorBlendState = &colorBlending;
-  pipelineInfo.layout = pipelineLayout;
+  pipelineInfo.layout = pipeline.layout;
   pipelineInfo.renderPass = renderPass;
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
- if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+ if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline.pipeline) != VK_SUCCESS) {
     throw EngineException("failed to create graphics pipeline!", file);
   }
 

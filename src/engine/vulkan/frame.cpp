@@ -101,10 +101,12 @@ void VulkanRenderer::drawFrame () {
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
-  for (auto &obj : objects) {
-    void* data;
-    vkMapMemory(device, obj.uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
-      memcpy(data, &obj.ubo, sizeof(UniformBufferObject));
-    vkUnmapMemory(device, obj.uniformBuffersMemory[currentImage]);
+  for (auto &pipeline : pipelines) {
+    for (auto &obj : pipeline.objects) {
+      void* data;
+      vkMapMemory(device, obj.uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
+        memcpy(data, &obj.ubo, sizeof(UniformBufferObject));
+      vkUnmapMemory(device, obj.uniformBuffersMemory[currentImage]);
+    }
   }
 }

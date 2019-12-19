@@ -73,16 +73,20 @@ void VulkanRenderer::recreateSwapchain() {
   createSwapchain();
   createImageViews();
   createRenderPass();
-  createGraphicsPipeline("shaders/vert.spv", "shaders/frag.spv");
+  for (auto &pipeline : pipelines) {
+    createGraphicsPipeline(pipeline);
+  }
   createFramebuffers();
-  createDescriptorPool(static_cast<int>(objects.size()));
-  double offset = static_cast<int>(objects.size()) / -2;
-  for (auto &obj : objects) {
-    createUniformBuffers(obj);
-    createDescriptorSets(obj);
-    obj.updateUBO(swapchainExtent);
-    obj.ubo.model = glm::translate(obj.ubo.model, glm::vec3(1.5f * offset, 0.0f, 0.0f));
-    offset++;
+  for (auto &pipeline : pipelines) {
+    createDescriptorPool(static_cast<int>(pipeline.objects.size()));
+    double offset = static_cast<int>(pipeline.objects.size()) / -2;
+    for (auto &obj : pipeline.objects) {
+      createUniformBuffers(obj);
+      createDescriptorSets(obj);
+      obj.updateUBO(swapchainExtent);
+      obj.ubo.model = glm::translate(obj.ubo.model, glm::vec3(1.5f * offset, 0.0f, 0.0f));
+      offset++;
+    }
   }
   createCommandBuffers();
 }
@@ -94,8 +98,10 @@ void VulkanRenderer::cleanupSwapchain() {
 
   vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
-  vkDestroyPipeline(device, graphicsPipeline, nullptr);
-  vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+  for (auto &pipeline : pipelines) {
+    vkDestroyPipeline(device, pipeline.pipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipeline.layout, nullptr);
+  }
   vkDestroyRenderPass(device, renderPass, nullptr);
 
   for (auto imageView : swapchainImageViews) {
@@ -103,8 +109,10 @@ void VulkanRenderer::cleanupSwapchain() {
   }
   vkDestroySwapchainKHR(device, swapchain, nullptr);
 
-  for (auto &obj : objects) {
-    obj.freeBuffers(device);
+  for (auto &pipeline : pipelines) {
+    for (auto &obj : pipeline.objects) {
+      obj.freeBuffers(device);
+    }
   }
 
   vkDestroyDescriptorPool(device, descriptorPool, nullptr);

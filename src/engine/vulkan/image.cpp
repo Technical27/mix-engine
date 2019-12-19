@@ -1,5 +1,9 @@
+// stb_image triggers a GCC warning so we temporarily disable "-Wtype-limits" while we load it
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#pragma GCC diagnostic pop
 #include "engine/vulkan.hpp"
 
 #define file "src/engine/vulkan/image.cpp"
