@@ -24,6 +24,8 @@ add_executable(main
   src/engine/vulkan/buffer.cpp
   src/engine/vulkan/image.cpp
 
+  src/engine/engine.cpp
+
   src/engine/utils/file.cpp
 )
 
