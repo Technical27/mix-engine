@@ -22,10 +22,6 @@
 #include <cstring>
 #include <cstdint>
 
-#ifndef NDEBUG
-#define USE_VALIDATION_LAYERS
-#endif
-
 struct UniformBufferObject {
   alignas(16) glm::mat4 model;
   alignas(16) glm::mat4 view;

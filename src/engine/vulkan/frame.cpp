@@ -25,6 +25,7 @@ void VulkanRenderer::createFramebuffers () {
 }
 
 void VulkanRenderer::drawFrame () {
+  if (minimized) return;
   vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
   uint32_t imageIndex;

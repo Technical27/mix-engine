@@ -27,7 +27,7 @@ void Engine::run() {
             break;
         }
       }
-      if (!vulkan->minimized) vulkan->drawFrame();
+      vulkan->drawFrame();
     }
     vulkan->cleanup();
   }
