@@ -2,7 +2,7 @@
 
 #define file "src/engine/vulkan/init.cpp"
 
-void VulkanRenderer::init() {
+void VulkanRenderer::init(std::function<void(Renderer* renderer)> func) {
   SDLinit();
   createInstance();
 #ifdef USE_VALIDATION_LAYERS
@@ -16,29 +16,12 @@ void VulkanRenderer::init() {
   createImageViews();
   createRenderPass();
   createDescriptorSetLayout();
-  Pipeline pipeline;
-  pipeline.vertShaderPath = "shaders/vert.spv";
-  pipeline.fragShaderPath = "shaders/frag.spv";
-  createGraphicsPipeline(pipeline);
   createFramebuffers();
   createCommandPool();
 
   createTextureSampler();
 
-  createDescriptorPool(3);
-  
-  Object cube = createObject("../assets/patch.png");
-  Object cube2 = createObject("../assets/patch.png");
-  Object cube3 = createObject("../assets/patch.png");
-  cube.updateUBO(swapchainExtent);
-  cube2.updateUBO(swapchainExtent);
-  cube3.updateUBO(swapchainExtent);
-  cube2.ubo.model = glm::translate(cube2.ubo.model, glm::vec3(1.5f, 0.0f, 0.0f));
-  cube3.ubo.model = glm::translate(cube3.ubo.model, glm::vec3(-1.5f, 0.0f, 0.0f));
-  pipeline.objects.push_back(cube);
-  pipeline.objects.push_back(cube2);
-  pipeline.objects.push_back(cube3);
-  pipelines.push_back(pipeline);
+  func((Renderer*)this);
 
   createCommandBuffers();
   createSyncObjects();

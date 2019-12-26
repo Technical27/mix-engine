@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include <stdexcept>
+#include <functional>
 #include <array>
 
 class Renderer {
@@ -11,7 +12,7 @@ class Renderer {
   public:
     bool framebufferResized = false;
     bool minimized = false;
-    virtual void init() = 0;
+    virtual void init(std::function<void(Renderer* renderer)> func) = 0;
     virtual void drawFrame() = 0;
     virtual void cleanup() = 0;
 };

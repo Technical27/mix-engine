@@ -141,8 +141,6 @@ class VulkanRenderer : public Renderer {
     VkQueue presentQueue;
     VkSurfaceKHR surface;
 
-    std::vector<Pipeline> pipelines;
-
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
     VkFormat swapchainImageFormat;
@@ -220,7 +218,6 @@ class VulkanRenderer : public Renderer {
 
     void updateUniformBuffer(uint32_t currentImage);
     void createDescriptorSetLayout();
-    void createDescriptorPool(int size);
 
     void createBuffer(
       VkDeviceSize size,
@@ -235,7 +232,6 @@ class VulkanRenderer : public Renderer {
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createGraphicsPipeline(Pipeline &pipeline);
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -262,6 +258,9 @@ class VulkanRenderer : public Renderer {
     void recreateSwapchain();
     void cleanupSwapchain();
   public:
+    void createGraphicsPipeline(Pipeline &pipeline);
+    std::vector<Pipeline> pipelines;
+    void createDescriptorPool(int size);
     VkExtent2D swapchainExtent;
     Object createObject(std::string texturePath) {
       Object obj;
@@ -275,7 +274,7 @@ class VulkanRenderer : public Renderer {
       return obj;
     }
     void cleanup();
-    void init();
+    void init(std::function<void(Renderer* renderer)> func);
     void drawFrame();
 
     VulkanRenderer() {};
