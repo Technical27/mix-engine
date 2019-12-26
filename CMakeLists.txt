@@ -3,7 +3,7 @@ project(mix-engine)
 
 set (CMAKE_CXX_STANDARD 17)
 
-set (COMMON_FLAGS "-std=c++17 -Wall -Wextra -pedantic -msse2 -mavx -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/stb")
+set (COMMON_FLAGS "-std=c++17 -Wall -Wextra -pedantic -msse2 -mavx")
 
 set (CMAKE_CXX_FLAGS_DEBUG "${COMMON_FLAGS} -Og -g3 -DUSE_VALIDATION_LAYERS")
 set (CMAKE_CXX_FLAGS_RELEASE "${COMMON_FLAGS} -O3 -s")
@@ -29,4 +29,5 @@ add_executable(main
   src/engine/utils/file.cpp
 )
 
+include_directories("${CMAKE_SOURCE_DIR}/stb" "${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(main SDL2 Vulkan::Vulkan glm)
