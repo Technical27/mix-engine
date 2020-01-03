@@ -54,7 +54,7 @@ void VulkanRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
   endSingleTimeCommands(commandBuffer);
 }
 
-void VulkanRenderer::createVertexBuffer(Object& obj) {
+void VulkanRenderer::createVertexBuffer(VulkanObject& obj) {
   VkDeviceSize bufferSize = sizeof(obj.vertices[0]) * obj.vertices.size();
 
   VkBuffer stagingBuffer;
@@ -84,7 +84,7 @@ void VulkanRenderer::createVertexBuffer(Object& obj) {
   vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void VulkanRenderer::createIndexBuffer (Object& obj) {
+void VulkanRenderer::createIndexBuffer (VulkanObject& obj) {
   VkDeviceSize bufferSize = sizeof(obj.indices[0]) * obj.indices.size();
 
   VkBuffer stagingBuffer;
@@ -159,7 +159,7 @@ void VulkanRenderer::createDescriptorPool(int size) {
   }
 }
 
-void VulkanRenderer::createDescriptorSets(Object& obj) {
+void VulkanRenderer::createDescriptorSets(VulkanObject& obj) {
   std::vector<VkDescriptorSetLayout> layouts(swapchainImages.size(), descriptorSetLayout);
   VkDescriptorSetAllocateInfo allocInfo = {};
   allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -205,7 +205,7 @@ void VulkanRenderer::createDescriptorSets(Object& obj) {
   }
 }
 
-void VulkanRenderer::createUniformBuffers(Object& obj) {
+void VulkanRenderer::createUniformBuffers(VulkanObject& obj) {
   VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
   obj.uniformBuffers.resize(swapchainImages.size());

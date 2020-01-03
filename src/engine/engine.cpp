@@ -3,13 +3,13 @@
 void createObjects(Renderer* renderer) {
   VulkanRenderer* vulkan = (VulkanRenderer*)renderer;
   vulkan->createDescriptorPool(3);
-  Pipeline pipeline;
+  VulkanPipeline pipeline;
   pipeline.vertShaderPath = "shaders/vert.spv";
   pipeline.fragShaderPath = "shaders/frag.spv";
   vulkan->createGraphicsPipeline(pipeline);
-  Object cube = vulkan->createObject("../assets/patch.png");
-  Object cube2 = vulkan->createObject("../assets/patch.png");
-  Object cube3 = vulkan->createObject("../assets/patch.png");
+  VulkanObject cube = vulkan->createObject("../assets/patch.png");
+  VulkanObject cube2 = vulkan->createObject("../assets/patch.png");
+  VulkanObject cube3 = vulkan->createObject("../assets/patch.png");
   cube.updateUBO(vulkan->swapchainExtent);
   cube2.updateUBO(vulkan->swapchainExtent);
   cube3.updateUBO(vulkan->swapchainExtent);

@@ -133,7 +133,7 @@ void VulkanRenderer::createRenderPass() {
   }
 }
 
-void VulkanRenderer::createGraphicsPipeline (Pipeline &pipeline) {
+void VulkanRenderer::createGraphicsPipeline (VulkanPipeline &pipeline) {
   auto vertCode = readFile(pipeline.vertShaderPath);
   auto fragCode = readFile(pipeline.fragShaderPath);
 

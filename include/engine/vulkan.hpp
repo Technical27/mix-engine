@@ -64,7 +64,7 @@ struct Vertex {
   }
 };
 
-struct Object {
+struct VulkanObject {
   std::vector<VkBuffer> uniformBuffers;
   std::vector<VkDeviceMemory> uniformBuffersMemory;
   VkBuffer vertexBuffer;
@@ -108,12 +108,12 @@ struct Object {
   }
 };
 
-struct Pipeline {
+struct VulkanPipeline {
   VkPipeline pipeline;
   VkPipelineLayout layout;
   std::string vertShaderPath;
   std::string fragShaderPath;
-  std::vector<Object> objects;
+  std::vector<VulkanObject> objects;
 };
 
 struct QueueFamilyIndices {
@@ -181,7 +181,7 @@ class VulkanRenderer : public Renderer {
       VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    void createCube (Object &c) {
+    void createCube (VulkanObject &c) {
       c.vertices = {
         {{-0.5f, -0.3f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
         {{0.5f, -0.3f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
@@ -209,12 +209,12 @@ class VulkanRenderer : public Renderer {
     void createCommandBuffers();
     void createSyncObjects();
 
-    void createVertexBuffer(Object& obj);
-    void createIndexBuffer(Object& obj);
-    void createUniformBuffers(Object& obj);
-    void createDescriptorSets(Object& obj);
-    void createTextureImage(Object& obj, std::string fileName);
-    void createTextureImageView(Object& obj);
+    void createVertexBuffer(VulkanObject& obj);
+    void createIndexBuffer(VulkanObject& obj);
+    void createUniformBuffers(VulkanObject& obj);
+    void createDescriptorSets(VulkanObject& obj);
+    void createTextureImage(VulkanObject& obj, std::string fileName);
+    void createTextureImageView(VulkanObject& obj);
 
     void updateUniformBuffer(uint32_t currentImage);
     void createDescriptorSetLayout();
@@ -258,12 +258,12 @@ class VulkanRenderer : public Renderer {
     void recreateSwapchain();
     void cleanupSwapchain();
   public:
-    void createGraphicsPipeline(Pipeline &pipeline);
-    std::vector<Pipeline> pipelines;
+    void createGraphicsPipeline(VulkanPipeline &pipeline);
+    std::vector<VulkanPipeline> pipelines;
     void createDescriptorPool(int size);
     VkExtent2D swapchainExtent;
-    Object createObject(std::string texturePath) {
-      Object obj;
+    VulkanObject createObject(std::string texturePath) {
+      VulkanObject obj;
       createCube(obj);
       createVertexBuffer(obj);
       createIndexBuffer(obj);

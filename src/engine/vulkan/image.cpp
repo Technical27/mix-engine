@@ -43,7 +43,7 @@ void VulkanRenderer::createImage(uint32_t width, uint32_t height, VkFormat forma
   vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-void VulkanRenderer::createTextureImage(Object& obj, std::string fileName) {
+void VulkanRenderer::createTextureImage(VulkanObject& obj, std::string fileName) {
   int textureWidth, textureHeight, textureChannels;
   stbi_uc* pixels = stbi_load(fileName.c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
   VkDeviceSize imageSize = textureWidth * textureHeight * 4;
@@ -193,7 +193,7 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format) {
   return imageView;
 }
 
-void VulkanRenderer::createTextureImageView(Object& obj) {
+void VulkanRenderer::createTextureImageView(VulkanObject& obj) {
   obj.textureImageView = createImageView(obj.textureImage, VK_FORMAT_R8G8B8A8_SRGB); 
 }
 
