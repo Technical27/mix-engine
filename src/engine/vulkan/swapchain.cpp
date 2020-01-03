@@ -73,21 +73,8 @@ void VulkanRenderer::recreateSwapchain() {
   createSwapchain();
   createImageViews();
   createRenderPass();
-  for (auto &pipeline : pipelines) {
-    createGraphicsPipeline(pipeline);
-  }
   createFramebuffers();
-  for (auto &pipeline : pipelines) {
-    createDescriptorPool(static_cast<int>(pipeline.objects.size()));
-    double offset = static_cast<int>(pipeline.objects.size()) / -2;
-    for (auto &obj : pipeline.objects) {
-      createUniformBuffers(obj);
-      createDescriptorSets(obj);
-      obj.updateUBO(swapchainExtent);
-      obj.ubo.model = glm::translate(obj.ubo.model, glm::vec3(1.5f * offset, 0.0f, 0.0f));
-      offset++;
-    }
-  }
+  createFunc((Renderer*)this);
   createCommandBuffers();
 }
 
@@ -111,9 +98,12 @@ void VulkanRenderer::cleanupSwapchain() {
 
   for (auto &pipeline : pipelines) {
     for (auto &obj : pipeline.objects) {
-      obj.freeBuffers(device);
+      obj.destroy(device);
     }
+    pipeline.objects.clear();
   }
+
+  pipelines.clear();
 
   vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 }

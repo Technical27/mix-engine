@@ -80,6 +80,11 @@ struct VulkanObject {
   UniformBufferObject ubo;
 
   void destroy (VkDevice device) {
+    for (size_t i = 0; i < uniformBuffers.size(); i++) {
+      vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+      vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+    }
+
     vkDestroyImageView(device, textureImageView, nullptr);
 
     vkDestroyImage(device, textureImage, nullptr);
@@ -90,13 +95,6 @@ struct VulkanObject {
 
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
-  }
-
-  void freeBuffers(VkDevice device) {
-    for (size_t i = 0; i < uniformBuffers.size(); i++) {
-      vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-      vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
-    }
   }
 
   void updateUBO(VkExtent2D extent) {
@@ -257,6 +255,7 @@ class VulkanRenderer : public Renderer {
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void recreateSwapchain();
     void cleanupSwapchain();
+    std::function<void(Renderer* renderer)> createFunc;
   public:
     void createGraphicsPipeline(VulkanPipeline &pipeline);
     std::vector<VulkanPipeline> pipelines;

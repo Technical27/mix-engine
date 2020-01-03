@@ -3,6 +3,7 @@
 #define file "src/engine/vulkan/init.cpp"
 
 void VulkanRenderer::init(std::function<void(Renderer* renderer)> func) {
+  createFunc = func;
   SDLinit();
   createInstance();
 #ifdef USE_VALIDATION_LAYERS
@@ -21,7 +22,7 @@ void VulkanRenderer::init(std::function<void(Renderer* renderer)> func) {
 
   createTextureSampler();
 
-  func((Renderer*)this);
+  createFunc((Renderer*)this);
 
   createCommandBuffers();
   createSyncObjects();
@@ -43,12 +44,6 @@ void VulkanRenderer::cleanup() {
   vkDeviceWaitIdle(device);
 
   cleanupSwapchain();
-
-  for (auto &pipeline : pipelines) {
-    for (auto &obj : pipeline.objects) {
-      obj.destroy(device);
-    }
-  }
 
   vkDestroySampler(device, textureSampler, nullptr);
 
