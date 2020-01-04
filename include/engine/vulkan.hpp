@@ -1,24 +1,30 @@
 #ifndef MIX_VULKAN_RENDERER_HPP
 #define MIX_VULKAN_RENDERER_HPP
+
+// Vulkan/SDL2 Vulkan functions
 #include <SDL2/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 
+// GLM
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <chrono>
 
+// Engine Headers
 #include "engine/renderer.hpp"
 #include "engine/exception.hpp"
 #include "engine/utils.hpp"
 
+// C++ stdlib
 #include <iostream>
 #include <vector>
 #include <string>
 #include <optional>
 #include <set>
 #include <algorithm>
+#include <chrono>
 
+// C stdlib
 #include <cstring>
 #include <cstdint>
 

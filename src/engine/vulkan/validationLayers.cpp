@@ -20,18 +20,18 @@ bool VulkanRenderer::checkValidationLayerSupport() {
   std::vector<VkLayerProperties> availableLayers(layerCount);
   vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
   for (const char* layerName : validationLayers) {
-      bool layerFound = false;
+    bool layerFound = false;
 
-      for (const auto& layerProperties : availableLayers) {
-          if (strcmp(layerName, layerProperties.layerName) == 0) {
-              layerFound = true;
-              break;
-          }
+    for (const auto& layerProperties : availableLayers) {
+      if (strcmp(layerName, layerProperties.layerName) == 0) {
+        layerFound = true;
+        break;
       }
+    }
 
-      if (!layerFound) {
-          return false;
-      }
+    if (!layerFound) {
+      return false;
+    }
   }
   return true;
 }
@@ -53,7 +53,7 @@ VkResult CreateDebugUtilsMessengerEXT(
 void VulkanRenderer::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
   createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-  createInfo.messageSeverity = 
+  createInfo.messageSeverity =
     VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
     VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
