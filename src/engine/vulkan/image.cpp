@@ -126,7 +126,7 @@ void VulkanRenderer::transitionImageLayout(VkImage image, VkImageLayout oldLayou
   else {
     throw std::invalid_argument("unsupported layout transition!");
   }
-  
+
   VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
   vkCmdPipelineBarrier(
@@ -194,7 +194,7 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format) {
 }
 
 void VulkanRenderer::createTextureImageView(VulkanObject& obj) {
-  obj.textureImageView = createImageView(obj.textureImage, VK_FORMAT_R8G8B8A8_SRGB); 
+  obj.textureImageView = createImageView(obj.textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 }
 
 void VulkanRenderer::createTextureSampler() {

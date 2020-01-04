@@ -15,6 +15,6 @@ std::vector<char> readFile (const std::string& filename) {
   file.read(buffer.data(), size);
 
   file.close();
-  
+
   return buffer;
 }

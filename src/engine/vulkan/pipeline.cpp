@@ -62,7 +62,7 @@ void VulkanRenderer::createCommandBuffers() {
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    
+
     for (auto &pipeline : pipelines) {
     vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
       for (auto &obj : pipeline.objects) {
